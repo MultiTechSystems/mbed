@@ -71,6 +71,7 @@ void rtc_init(void)
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
 
+    printf("init RTC with LSE\n");
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
@@ -91,6 +92,7 @@ void rtc_init(void)
     __HAL_RCC_BACKUPRESET_RELEASE();
 
     // Enable LSI clock
+    printf("init RTC with LSI\n");
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;

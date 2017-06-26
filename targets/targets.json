@@ -1389,7 +1389,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART" 
             }
         },
-        "macros": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000","TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1"],
+        "macros": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000","TRANSACTION_QUEUE_SIZE_SPI=2"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
