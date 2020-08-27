@@ -26,7 +26,7 @@
 
 using namespace mbed;
 
-ONBOARD_SARA4_PPP::ONBOARD_SARA4_PPP(FileHandle *fh) : SARA4_PPP(fh)
+ONBOARD_SARA4_PPP::ONBOARD_SARA4_PPP(FileHandle *fh) : UBLOX_AT(fh)
 {
 }
 

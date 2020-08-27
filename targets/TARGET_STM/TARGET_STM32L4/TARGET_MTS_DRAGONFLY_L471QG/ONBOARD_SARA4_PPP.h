@@ -17,11 +17,11 @@
 #ifndef ONBOARD_SARA4_PPP_
 #define ONBOARD_SARA4_PPP_
 
-#include "SARA4_PPP.h"
+#include "UBLOX_AT.h"
 
 namespace mbed {
 
-class ONBOARD_SARA4_PPP : public SARA4_PPP {
+class ONBOARD_SARA4_PPP : public UBLOX_AT {
 public:
     ONBOARD_SARA4_PPP(FileHandle *fh);
 

@@ -336,7 +336,7 @@ CellularNetwork::RadioAccessTechnology UBLOX_AT_CellularContext::read_radio_tech
 {
     int act;
     CellularNetwork::RadioAccessTechnology rat;
-
+return CellularNetwork::RadioAccessTechnology::RAT_CATM1;
     _at.at_cmd_int("+URAT", "?", act);
 
     switch (act) {
