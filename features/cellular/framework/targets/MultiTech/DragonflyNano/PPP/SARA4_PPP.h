@@ -38,6 +38,26 @@ public:
 
 public: // CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+
+    /** Enable or disable the 3GPP PSM.
+ *
+ *  Note: Application should reboot the module after enabling PSM in order to enter PSM state. (reboot_modem())
+ *  Note: Modem can be woken up by toggling the power-on signal. (wakeup_modem())
+ *  Note: When device enters PSM, all connections(PPP, sockets) and settings that are not saved in NV memory(ATE0, CREG etc) are lost.
+ *        host application should be prepared to re-initialize the modem and re-establish the connections.
+ *  Note: PSM is disabled if both periodic_time and active_time are 0.
+ *  Note: Not all variants/firmware versions support PSM URCs and in that case function will return false.
+ *
+ *  PSM string encoding code is borrowed from AT_CellularPower.cpp
+ *
+ * @param periodic_time    requested periodic TAU in seconds.
+ * @param active_time      requested active time in seconds.
+ * @param func             callback function to execute when modem goes to sleep
+ * @param ptr              parameter to callback function
+ * @return         True if successful, otherwise false.
+ */
+nsapi_error_t set_power_save_mode(int periodic_tau, int active_time);
+
 };
 
 } // namespace mbed
