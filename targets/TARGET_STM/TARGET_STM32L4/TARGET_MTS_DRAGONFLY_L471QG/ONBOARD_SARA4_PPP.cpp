@@ -121,6 +121,7 @@ void ONBOARD_SARA4_PPP::onboard_modem_power_up()
             i++;
         }
     }
+    thread_sleep_for(5000);
 }
 
 void ONBOARD_SARA4_PPP::onboard_modem_power_down()
