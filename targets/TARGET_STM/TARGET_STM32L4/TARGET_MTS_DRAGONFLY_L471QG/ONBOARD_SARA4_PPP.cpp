@@ -26,9 +26,11 @@
 
 using namespace mbed;
 
+BufferedSerial ONBOARD_SARA4_PPP::_serial(MDMTXD, MDMRXD, 115200);
+
 ONBOARD_SARA4_PPP::ONBOARD_SARA4_PPP(FileHandle *fh) : SARA4_PPP(fh)
 {
-    initialized = 0;  
+    initialized = 0;
 }
 
 nsapi_error_t ONBOARD_SARA4_PPP::hard_power_on()
@@ -59,14 +61,13 @@ nsapi_error_t ONBOARD_SARA4_PPP::soft_power_off()
 
 CellularDevice *CellularDevice::get_target_default_instance()
 {
-    static BufferedSerial serial(MDMTXD, MDMRXD, 115200);
 #if DEVICE_SERIAL_FC
     if (MDMRTS != NC && MDMCTS != NC) {
         tr_debug("Modem flow control: RTS %d CTS %d", MDMRTS, MDMCTS);
-        serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
+        ONBOARD_SARA4_PPP::_serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
     }
 #endif
-    static ONBOARD_SARA4_PPP device(&serial);
+    static ONBOARD_SARA4_PPP device(&ONBOARD_SARA4_PPP::_serial);
     return &device;
 }
 
@@ -97,17 +98,21 @@ void ONBOARD_SARA4_PPP::onboard_modem_deinit()
     onboard_modem_power_down();
     gpio_t gpio;
 
+    // Set all to input no pull. Let pull resistors do their thing. Allows for lowest power draw.
     // Disable radio power regulator and buffer.
-    gpio_init_out_ex(&gpio, MDMRST, 1);
-    gpio_init_out_ex(&gpio, MDMPWRON, 1);
-    gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   1);
-    gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   0);
-    gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 1);
+    gpio_init_inout(&gpio, MDMRST, PIN_INPUT, PullNone, 1);
+    gpio_init_inout(&gpio, MDMPWRON, PIN_INPUT, PullNone, 1);
+    gpio_init_inout(&gpio, BUF_EN, PIN_INPUT, PullNone, 1);
+    gpio_init_inout(&gpio, RADIO_PWR, PIN_INPUT, PullNone, 0);
+    gpio_init_inout(&gpio, RADIO_DTR, PIN_INPUT, PullNone, 1);
     initialized = 0;
 }
 
 void ONBOARD_SARA4_PPP::onboard_modem_power_up()
 {
+    // Make sure serial input is enabled as it is disabled on power down for mbed deep sleep.
+    _serial.enable_input(1);
+
     // Make sure the radio is initialized so it can be powered on.
     if (!initialized){
         onboard_modem_init();
@@ -140,6 +145,9 @@ void ONBOARD_SARA4_PPP::onboard_modem_power_up()
 
 void ONBOARD_SARA4_PPP::onboard_modem_power_down()
 {
+    // Disable serial input to allow for mbed deep sleep.
+    _serial.enable_input(0);
+
     gpio_t radioOn;
     gpio_init_in(&radioOn, MON_1V8);
     // Need volatile so 1.8v check is not optimized out.
@@ -149,7 +157,7 @@ void ONBOARD_SARA4_PPP::onboard_modem_power_down()
         return;
     }
 
-    // Make sure the radio is initialized.
+    // Make sure the I/O are properly initialized.
     if (!initialized){
         onboard_modem_init();
     }

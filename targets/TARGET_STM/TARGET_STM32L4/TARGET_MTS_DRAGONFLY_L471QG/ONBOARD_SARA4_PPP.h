@@ -29,7 +29,8 @@ public:
     virtual nsapi_error_t hard_power_off();
     virtual nsapi_error_t soft_power_on();
     virtual nsapi_error_t soft_power_off();
-
+    static BufferedSerial _serial;
+    
 private:
     uint8_t initialized;
 
