@@ -174,296 +174,286 @@ void mtqn_restore_gpio_state() {
 }
 
 /**
-  * @brief  System Clock Speed decrease
-  *         The system Clock source is shifted from HSI to MSI
-  *         while at the same time, MSI range is set to RCC_MSIRANGE_0
-  *         to go down to 100 KHz
-  * @param  None
-  * @retval None
-  */
+    * @brief  System Clock Speed decrease
+    *         The system Clock source is shifted from HSI to MSI
+    *         while at the same time, MSI range is set to RCC_MSIRANGE_0
+    *         to go down to 100 KHz
+    * @param  None
+    * @retval None
+    */
 int SystemClock_Decrease(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
 
-  /* MSI is enabled in range 0 (100Khz) */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_0;
-  RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
+    /* MSI is enabled in range 0 (100Khz) */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_0;
+    RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
     /* Initialization Error */
-	 return -1;
-  }
+        return -1;
+    }
 
-  /* Select MSI as system clock source and keep HCLK, PCLK1 and PCLK2 clocks dividers as before */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
-    /* Initialization Error */
-	  return -1;
-  }
+    /* Select MSI as system clock source and keep HCLK, PCLK1 and PCLK2 clocks dividers as before */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+    if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+    {
+        /* Initialization Error */
+        return -1;
+    }
 
-  /* Disable HSI to reduce power consumption since MSI is used from that point */
-  __HAL_RCC_HSI_DISABLE();
-  __HAL_RCC_LSI_DISABLE();
+    /* Disable HSI to reduce power consumption since MSI is used from that point */
+    __HAL_RCC_HSI_DISABLE();
+    __HAL_RCC_LSI_DISABLE();
 
-  return 0;
+    return 0;
 }
 
-void mtqn_pull_up_pins(){
-	GPIO_InitTypeDef GPIO_InitStruct;
+// float internal pins not pins applications use. Leave those pins as the application needs them
+void mtqn_float_internal_pins(){
+    GPIO_InitTypeDef GPIO_InitStruct;
 
-	HAL_PWREx_EnablePullUpPullDownConfig();
+    HAL_PWREx_EnablePullUpPullDownConfig();
 
-	 /* Enable GPIOs clock */
-	  __HAL_RCC_GPIOA_CLK_ENABLE();
-	  __HAL_RCC_GPIOB_CLK_ENABLE();
-	  __HAL_RCC_GPIOC_CLK_ENABLE();
-	  __HAL_RCC_GPIOD_CLK_ENABLE();
-	  __HAL_RCC_GPIOH_CLK_ENABLE();
-	  __HAL_RCC_GPIOE_CLK_ENABLE();
-	  __HAL_RCC_GPIOF_CLK_ENABLE();
-	  __HAL_RCC_GPIOG_CLK_ENABLE();
+    /* Enable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_7 | GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-	  /* Disable GPIOs clock */
-	  __HAL_RCC_GPIOA_CLK_DISABLE();
-	  __HAL_RCC_GPIOB_CLK_DISABLE();
-	  __HAL_RCC_GPIOC_CLK_DISABLE();
-	  __HAL_RCC_GPIOD_CLK_DISABLE();
-	  __HAL_RCC_GPIOH_CLK_DISABLE();
-	  __HAL_RCC_GPIOE_CLK_DISABLE();
-	  __HAL_RCC_GPIOF_CLK_DISABLE();
-	  __HAL_RCC_GPIOG_CLK_DISABLE();
+    /* Disable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_DISABLE();
+    __HAL_RCC_GPIOB_CLK_DISABLE();
+    __HAL_RCC_GPIOC_CLK_DISABLE();
+    __HAL_RCC_GPIOD_CLK_DISABLE();
+    __HAL_RCC_GPIOH_CLK_DISABLE();
+    __HAL_RCC_GPIOE_CLK_DISABLE();
+    __HAL_RCC_GPIOF_CLK_DISABLE();
+    __HAL_RCC_GPIOG_CLK_DISABLE();
+
 }
 
-void mtqn_pull_down_pins(){
-	GPIO_InitTypeDef GPIO_InitStruct;
+void mtqn_float_pins(){
+    GPIO_InitTypeDef GPIO_InitStruct;
 
-	HAL_PWREx_EnablePullUpPullDownConfig();
+    HAL_PWREx_EnablePullUpPullDownConfig();
 
-	/* Enable GPIOs clock */
-	  __HAL_RCC_GPIOA_CLK_ENABLE();
-	  __HAL_RCC_GPIOB_CLK_ENABLE();
-	  __HAL_RCC_GPIOC_CLK_ENABLE();
-	  __HAL_RCC_GPIOD_CLK_ENABLE();
-	  __HAL_RCC_GPIOH_CLK_ENABLE();
-	  __HAL_RCC_GPIOE_CLK_ENABLE();
-	  __HAL_RCC_GPIOF_CLK_ENABLE();
-	  __HAL_RCC_GPIOG_CLK_ENABLE();
+    /* Enable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_All ;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-	  /* Disable GPIOs clock */
-	  __HAL_RCC_GPIOA_CLK_DISABLE();
-	  __HAL_RCC_GPIOB_CLK_DISABLE();
-	  __HAL_RCC_GPIOC_CLK_DISABLE();
-	  __HAL_RCC_GPIOD_CLK_DISABLE();
-	  __HAL_RCC_GPIOH_CLK_DISABLE();
-	  __HAL_RCC_GPIOE_CLK_DISABLE();
-	  __HAL_RCC_GPIOF_CLK_DISABLE();
-	  __HAL_RCC_GPIOG_CLK_DISABLE();
+  /* Disable GPIOs clock */
+  __HAL_RCC_GPIOA_CLK_DISABLE();
+  __HAL_RCC_GPIOB_CLK_DISABLE();
+  __HAL_RCC_GPIOC_CLK_DISABLE();
+  __HAL_RCC_GPIOD_CLK_DISABLE();
+  __HAL_RCC_GPIOH_CLK_DISABLE();
+  __HAL_RCC_GPIOE_CLK_DISABLE();
+  __HAL_RCC_GPIOF_CLK_DISABLE();
+  __HAL_RCC_GPIOG_CLK_DISABLE();
 }
 
-
- void mtqn_float_pins(){
-	GPIO_InitTypeDef GPIO_InitStruct;
-
-	HAL_PWREx_EnablePullUpPullDownConfig();
-
-	/* Enable GPIOs clock */
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	__HAL_RCC_GPIOD_CLK_ENABLE();
-	__HAL_RCC_GPIOH_CLK_ENABLE();
-	__HAL_RCC_GPIOE_CLK_ENABLE();
-	__HAL_RCC_GPIOF_CLK_ENABLE();
-	__HAL_RCC_GPIOG_CLK_ENABLE();
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = GPIO_PIN_All;
-	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
-
-	/* Disable GPIOs clock */
-	__HAL_RCC_GPIOA_CLK_DISABLE();
-	__HAL_RCC_GPIOB_CLK_DISABLE();
-	__HAL_RCC_GPIOC_CLK_DISABLE();
-	__HAL_RCC_GPIOD_CLK_DISABLE();
-	__HAL_RCC_GPIOH_CLK_DISABLE();
-	__HAL_RCC_GPIOE_CLK_DISABLE();
-	__HAL_RCC_GPIOF_CLK_DISABLE();
-	__HAL_RCC_GPIOG_CLK_DISABLE();
+/*
+The ADCx (x=1,2,3), temperature sensor and VREFBUF buffer can consume power during
+the Stop 0 mode, unless they are disabled before entering this mode.
+Software procedure to disable the ADC
+    1. Check that both ADSTART=0 and JADSTART=0 to ensure that no conversion is
+    ongoing. If required, stop any regular and injected conversion ongoing by setting
+    ADSTP=1 and JADSTP=1 and then wait until ADSTP=0 and JADSTP=0.
+    2. Set ADDIS=1.
+    3. If required by the application, wait until ADEN=0, until the analog ADC is effectively
+    disabled (ADDIS will automatically be reset once ADEN=0).*/
+void mtqn_disable_adc(){
+    if(ADC1->CR & ADC_CR_ADEN){
+        if (ADC1->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
+            ADC1->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            while (ADC1->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
+            ADC1->CR &= ADC_CR_ADDIS;
+            while (ADC1->CR & ADC_CR_ADEN){;}
+        }
+    }
+    if(ADC2->CR & ADC_CR_ADEN){
+        if (ADC2->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
+            ADC2->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            while (ADC2->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
+            ADC2->CR &= ADC_CR_ADDIS;
+            while (ADC2->CR & ADC_CR_ADEN){;}
+        }
+    }
+    if(ADC3->CR & ADC_CR_ADEN){
+        if (ADC3->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
+            ADC3->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            while (ADC3->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
+            ADC3->CR &= ADC_CR_ADDIS;
+            while (ADC3->CR & ADC_CR_ADEN){;}
+        }
+    }
 }
 
 void mtqn_enter_stop_mode() {
+    mtqn_disable_adc();
+/*
+Several peripherals can be used in Stop 0 mode and can add consumption if they are
+enabled and clocked by LSI or LSE, or when they request the HSI16 clock: LPTIM1,
 
-	mtqn_save_gpio_state();
-	mtqn_float_pins();
+LPTIM2, I2Cx (x=1,2,3) U(S)ARTx(x=1,2...5), LPUART.
+The DACx (x=1,2), the OPAMPs and the comparators can be used in Stop 0 mode, the
+PVMx (x=1,2,3,4) and the PVD as well. If they are not needed, they must be disabled by
+software to save their power consumptions.
 
-	SystemClock_Decrease();
-	 /* Suspend Tick increment for power consumption purposes         */
-	HAL_SuspendTick();
-	__HAL_RCC_TIM5_CLK_DISABLE();
-
-	// make sure wakeup flag is cleared
-	__HAL_PWR_CLEAR_FLAG(
-			PWR_FLAG_WUF1 | PWR_FLAG_WUF2 | PWR_FLAG_WUF3 | PWR_FLAG_WUF4
-					| PWR_FLAG_WUF5 | PWR_FLAG_WUFI);
-	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
-
-	HAL_PWREx_EnableInternalWakeUpLine();
-	HAL_PWREx_EnableLowPowerRunMode();
+The ADCx (x=1,2,3), temperature sensor and VREFBUF buffer can consume power during
+the Stop 0 mode, unless they are disabled before entering this mode.
+*/
 
 
-	  /* Enable Power Clock */
-	  __HAL_RCC_PWR_CLK_ENABLE();
+    mtqn_save_gpio_state();
+    mtqn_float_pins();
 
-	  /* Ensure that MSI is wake-up system clock */
-	  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
+    SystemClock_Decrease();
+    /* Suspend Tick increment for power consumption purposes         */
+    HAL_SuspendTick();
+    __HAL_RCC_TIM5_CLK_DISABLE();
 
-	HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+    // make sure wakeup flag is cleared
+    __HAL_PWR_CLEAR_FLAG(
+    PWR_FLAG_WUF1 | PWR_FLAG_WUF2 | PWR_FLAG_WUF3 | PWR_FLAG_WUF4
+    | PWR_FLAG_WUF5 | PWR_FLAG_WUFI);
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
 
-	HAL_PWREx_DisableLowPowerRunMode();
+    HAL_PWREx_EnableInternalWakeUpLine();
+    HAL_PWREx_EnableLowPowerRunMode();
 
-	SetSysClock();
-	SystemCoreClockUpdate();
 
-	/* Resume Tick interrupt if disabled prior to Low Power Run mode entry */
-	HAL_ResumeTick();
-	__HAL_RCC_TIM5_CLK_ENABLE();
+    /* Enable Power Clock */
+    __HAL_RCC_PWR_CLK_ENABLE();
 
-	mtqn_restore_gpio_state();
+    /* Ensure that MSI is wake-up system clock */
+    __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_MSI);
 
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+    HAL_PWREx_DisableLowPowerRunMode();
+
+    SetSysClock();
+    SystemCoreClockUpdate();
+
+    /* Resume Tick interrupt if disabled prior to Low Power Run mode entry */
+    HAL_ResumeTick();
+    __HAL_RCC_TIM5_CLK_ENABLE();
+
+    mtqn_restore_gpio_state();
 }
 
 void mtqn_enter_standby_mode() {
-	//mtqn_float_pins();
-	//mtqn_pull_down_pins();
+    //mtqn_float_pins();
+    //mtqn_pull_down_pins();
 
     /* Enable Power Clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
 
-  /* Disable all used wakeup sources: WKUP pin */
-  HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN2);
+    /* Disable all used wakeup sources: WKUP pin */
+    HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN2);
 
 
-  /* Clear wake up Flag */
-	__HAL_PWR_CLEAR_FLAG(
-			PWR_FLAG_WUF1 | PWR_FLAG_WUF2 | PWR_FLAG_WUF3 | PWR_FLAG_WUF4
-					| PWR_FLAG_WUF5 | PWR_FLAG_WUFI);
+    /* Clear wake up Flag */
+    __HAL_PWR_CLEAR_FLAG(
+        PWR_FLAG_WUF1 | PWR_FLAG_WUF2 | PWR_FLAG_WUF3 | PWR_FLAG_WUF4
+        | PWR_FLAG_WUF5 | PWR_FLAG_WUFI);
 
-  /* Enable wakeup pin WKUP2 */
-  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2_LOW);
+    /* Enable wakeup pin WKUP2 */
+    HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2_LOW);
 
-  /* Set RTC back-up register RTC_BKP31R to indicate
+    /* Set RTC back-up register RTC_BKP31R to indicate
      later on that system has entered shutdown mode  */
-  WRITE_REG( RTC->BKP31R, 0x1 );
-  /* Enter shutdown mode */
+     WRITE_REG( RTC->BKP31R, 0x1 );
+     /* Enter shutdown mode */
 
-	HAL_PWREx_EnterSHUTDOWNMode();
+     HAL_PWREx_EnterSHUTDOWNMode();
 }
 
 void mtqn_enable_standby_wake_pin() {
@@ -473,4 +463,3 @@ void mtqn_enable_standby_wake_pin() {
 void mtqn_disable_standby_wake_pin() {
     HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
 }
-
