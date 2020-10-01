@@ -77,7 +77,7 @@ void mtqn_restore_gpio_state();
  * program execution resumes after this function when the device wakes up
  */
 void mtqn_enter_stop_mode();
-
+void mtqn_enter_stop_mode2();
 /* mtqn_enter_standby_mode
  * put the processor into STANDBY mode
  * RAM and peripheral state is lost

@@ -291,6 +291,7 @@ void mtqn_float_pins(){
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOF_CLK_ENABLE();
     __HAL_RCC_GPIOG_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
 
     GPIO_InitStruct.Pin = GPIO_PIN_All;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -317,7 +318,7 @@ void mtqn_float_pins(){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 |GPIO_PIN_5 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
@@ -326,6 +327,11 @@ void mtqn_float_pins(){
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   /* Disable GPIOs clock */
   __HAL_RCC_GPIOA_CLK_DISABLE();
@@ -336,6 +342,7 @@ void mtqn_float_pins(){
   __HAL_RCC_GPIOE_CLK_DISABLE();
   __HAL_RCC_GPIOF_CLK_DISABLE();
   __HAL_RCC_GPIOG_CLK_DISABLE();
+  __HAL_RCC_GPIOH_CLK_DISABLE();
 }
 
 /*
@@ -348,35 +355,128 @@ Software procedure to disable the ADC
     2. Set ADDIS=1.
     3. If required by the application, wait until ADEN=0, until the analog ADC is effectively
     disabled (ADDIS will automatically be reset once ADEN=0).*/
-void mtqn_disable_adc(){
+void mtqn_disable_ADCx(){
     if(ADC1->CR & ADC_CR_ADEN){
         if (ADC1->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
-            ADC1->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            ADC1->CR |= (ADC_CR_ADSTP | ADC_CR_JADSTP);
             while (ADC1->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
-            ADC1->CR &= ADC_CR_ADDIS;
+            ADC1->CR |= ADC_CR_ADDIS;
             while (ADC1->CR & ADC_CR_ADEN){;}
         }
     }
     if(ADC2->CR & ADC_CR_ADEN){
         if (ADC2->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
-            ADC2->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            ADC2->CR |= (ADC_CR_ADSTP | ADC_CR_JADSTP);
             while (ADC2->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
-            ADC2->CR &= ADC_CR_ADDIS;
+            ADC2->CR |= ADC_CR_ADDIS;
             while (ADC2->CR & ADC_CR_ADEN){;}
         }
     }
     if(ADC3->CR & ADC_CR_ADEN){
         if (ADC3->CR & (ADC_CR_ADSTART | ADC_CR_JADSTART)){
-            ADC3->CR &= (ADC_CR_ADSTP | ADC_CR_JADSTP);
+            ADC3->CR |= (ADC_CR_ADSTP | ADC_CR_JADSTP);
             while (ADC3->CR & (ADC_CR_ADSTP | ADC_CR_JADSTP)){;}
-            ADC3->CR &= ADC_CR_ADDIS;
+            ADC3->CR |= ADC_CR_ADDIS;
             while (ADC3->CR & ADC_CR_ADEN){;}
         }
     }
 }
 
+void mtqn_disable_LPTIM1(){
+    LPTIM1->CR &= ~LPTIM_CR_ENABLE;
+}
+
+void mtqn_disable_I2C3(){
+    I2C3->CR1 &= ~I2C_CR1_PE;
+}
+
+void mtqn_disable_DMAx(){
+    DMA1_Channel1->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel2->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel3->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel4->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel5->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel6->CCR &= ~DMA_CCR_EN;
+    DMA1_Channel7->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel1->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel2->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel3->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel4->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel5->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel6->CCR &= ~DMA_CCR_EN;
+    DMA2_Channel7->CCR &= ~DMA_CCR_EN;
+}
+
+/*In order to go into low-power mode without generating errors on the line, the TE bit
+must be reset before and the software must wait for the TC bit in the LPUART_ISR to
+be set before resetting the UE bit.
+The DMA requests are also reset when UE = 0 so the DMA channel must be disabled
+before resetting the UE bit.*/
+void mtqn_disable_LPUART(){
+    //reset CR1_TE bit.
+    LPUART1->CR1 &= ~USART_CR1_UE;
+    //wait for TC bit in LPUART_ISR.
+    volatile int tc;
+    do{
+        tc = LPUART1->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    LPUART1->CR1 &= USART_CR1_UE;
+}
+
+void mtqn_disable_comparators(){
+    COMP1->CSR &= ~COMP_CSR_EN;
+    COMP2->CSR &= ~COMP_CSR_EN;
+}
+
+void mtqn_disable_PVMx(){
+    PWR->CR2 &= ~PWR_CR2_PVME;
+}
+
+void mtqn_disable_PVD(){
+    PWR->CR2 &= ~PWR_CR2_PVDE;
+}
+
+void mtqn_disable_OPAMPx(){
+    OPAMP1->CSR &= ~OPAMP1_CSR_OPAEN;
+    OPAMP2->CSR &= ~OPAMP2_CSR_OPAEN;
+}
+
+void mtqn_disable_DACx(){
+    DAC->CR &= ~(DAC_CR_EN1 | DAC_CR_EN2);
+}
+
+// Note: Software is allowed to write this bit only when the ADCs are disabled (ADCAL=0,
+//   JADSTART=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0)
+void mtqn_disable_temp_sensor(){
+    ADC123_COMMON->CCR &= ~ADC_CCR_TSEN;
+}
+
+void mtqn_disable_VREFBUF(){
+    VREFBUF->CSR &= ~VREFBUF_CSR_ENVR;
+}
+
+void mtqn_enter_stop_mode2() {
+    mtqn_disable_ADCx();
+    mtqn_disable_LPTIM1();
+    mtqn_disable_I2C3();
+    mtqn_disable_DMAx();
+    mtqn_disable_LPUART();
+    mtqn_disable_comparators();
+    mtqn_disable_PVMx();
+    mtqn_disable_PVD();
+    mtqn_disable_OPAMPx();
+    mtqn_disable_DACx();
+    mtqn_disable_temp_sensor();
+    mtqn_disable_VREFBUF();
+
+    mtqn_save_gpio_state();
+    mtqn_float_pins();
+    HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+}
+
 void mtqn_enter_stop_mode() {
-    mtqn_disable_adc();
+    mtqn_disable_ADCx();
 /*
 Several peripherals can be used in Stop 0 mode and can add consumption if they are
 enabled and clocked by LSI or LSE, or when they request the HSI16 clock: LPTIM1,
