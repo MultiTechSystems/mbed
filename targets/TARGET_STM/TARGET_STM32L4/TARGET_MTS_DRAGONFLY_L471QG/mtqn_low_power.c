@@ -421,7 +421,66 @@ void mtqn_disable_LPUART(){
         tc = LPUART1->ISR & USART_ISR_TC;
     } while(!tc);
     //reset CR1_UE bit.
-    LPUART1->CR1 &= USART_CR1_UE;
+    LPUART1->CR1 &= ~USART_CR1_UE;
+}
+
+/*In order to go into low-power mode without generating errors on the line, the TE bit
+must be reset before and the software must wait for the TC bit in the USART_ISR to be
+set before resetting the UE bit.
+The DMA requests are also reset when UE = 0 so the DMA channel must be disabled
+before resetting the UE bit.*/
+void mtqn_disable_USARTx(){
+    USART1->CR1 &= ~USART_CR1_RE;
+    USART2->CR1 &= ~USART_CR1_RE;
+    USART3->CR1 &= ~USART_CR1_RE;
+    UART4->CR1 &= ~USART_CR1_RE;
+    UART5->CR1 &= ~USART_CR1_RE;
+
+    //reset CR1_TE bit.
+    USART1->CR1 &= ~USART_CR1_TE;
+    //wait for TC bit in USART_ISR.
+    volatile int tc;
+    do{
+        tc = USART1->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    USART1->CR1 &= ~USART_CR1_UE;
+
+    //reset CR1_TE bit.
+    USART2->CR1 &= ~USART_CR1_TE;
+    //wait for TC bit in USART_ISR.
+    do{
+        tc = USART2->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    USART2->CR1 &= ~USART_CR1_UE;
+
+    //reset CR1_TE bit.
+    USART3->CR1 &= ~USART_CR1_TE;
+    //wait for TC bit in USART_ISR.
+    do{
+        tc = USART3->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    USART3->CR1 &= ~USART_CR1_UE;
+
+    //reset CR1_TE bit.
+    UART4->CR1 &= ~USART_CR1_TE;
+    //wait for TC bit in USART_ISR.
+    do{
+        tc = UART4->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    UART4->CR1 &= ~USART_CR1_UE;
+
+    //reset CR1_TE bit.
+    UART5->CR1 &= ~USART_CR1_TE;
+    //wait for TC bit in USART_ISR.
+    do{
+        tc = UART5->ISR & USART_ISR_TC;
+    } while(!tc);
+    //reset CR1_UE bit.
+    UART5->CR1 &= ~USART_CR1_UE;
 }
 
 void mtqn_disable_comparators(){
@@ -462,6 +521,7 @@ void mtqn_enter_stop_mode2() {
     mtqn_disable_I2C3();
     mtqn_disable_DMAx();
     mtqn_disable_LPUART();
+    mtqn_disable_USARTx();
     mtqn_disable_comparators();
     mtqn_disable_PVMx();
     mtqn_disable_PVD();
