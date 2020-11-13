@@ -79,13 +79,6 @@ void mtqn_save_gpio_state() {
     portD[4] = GPIOD->AFR[0];
     portD[5] = GPIOD->AFR[1];
 
-    portD[0] = GPIOD->MODER;
-    portD[1] = GPIOD->OTYPER;
-    portD[2] = GPIOD->OSPEEDR;
-    portD[3] = GPIOD->PUPDR;
-    portD[4] = GPIOD->AFR[0];
-    portD[5] = GPIOD->AFR[1];
-
     portE[0] = GPIOE->MODER;
     portE[1] = GPIOE->OTYPER;
     portE[2] = GPIOE->OSPEEDR;
@@ -214,7 +207,8 @@ int SystemClock_Decrease(void)
     return 0;
 }
 
-// float internal pins not pins applications use. Leave those pins as the application needs them
+// float internal pins not pins applications use. Leave those pins as the
+//  application needs them
 void mtqn_float_internal_pins(){
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -225,10 +219,10 @@ void mtqn_float_internal_pins(){
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOF_CLK_ENABLE();
     __HAL_RCC_GPIOG_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
 
     GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -265,16 +259,20 @@ void mtqn_float_internal_pins(){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+
     /* Disable GPIOs clock */
     __HAL_RCC_GPIOA_CLK_DISABLE();
     __HAL_RCC_GPIOB_CLK_DISABLE();
     __HAL_RCC_GPIOC_CLK_DISABLE();
     __HAL_RCC_GPIOD_CLK_DISABLE();
-    __HAL_RCC_GPIOH_CLK_DISABLE();
     __HAL_RCC_GPIOE_CLK_DISABLE();
     __HAL_RCC_GPIOF_CLK_DISABLE();
     __HAL_RCC_GPIOG_CLK_DISABLE();
-
+    __HAL_RCC_GPIOH_CLK_DISABLE();
 }
 
 void mtqn_float_pins(){
@@ -287,18 +285,17 @@ void mtqn_float_pins(){
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOF_CLK_ENABLE();
     __HAL_RCC_GPIOG_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
 
-    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Pin = GPIO_PIN_All;	//(GPIO_PIN_All ^ (GPIO_PIN_2 | GPIO_PIN_3)); // TX/RX for AT command port
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Pin = (GPIO_PIN_All ^ (GPIO_PIN_6 | GPIO_PIN_7));	// TX/RX for debug port
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -308,7 +305,7 @@ void mtqn_float_pins(){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_All;
+    GPIO_InitStruct.Pin = (GPIO_PIN_All ^ (GPIO_PIN_8 | GPIO_PIN_9));	// TX/RX for radio
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
@@ -318,7 +315,7 @@ void mtqn_float_pins(){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 |GPIO_PIN_5 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+    GPIO_InitStruct.Pin = (GPIO_PIN_All ^ (GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10));
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
@@ -338,7 +335,6 @@ void mtqn_float_pins(){
   __HAL_RCC_GPIOB_CLK_DISABLE();
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOD_CLK_DISABLE();
-  __HAL_RCC_GPIOH_CLK_DISABLE();
   __HAL_RCC_GPIOE_CLK_DISABLE();
   __HAL_RCC_GPIOF_CLK_DISABLE();
   __HAL_RCC_GPIOG_CLK_DISABLE();
@@ -382,8 +378,29 @@ void mtqn_disable_ADCx(){
     }
 }
 
+/*
+From device errata ES0335:
+In order to disable a low power timer (LPTIMx) peripheral, do not clear its ENABLE bit in its respective LPTIM_CR
+register. Instead, reset the whole LPTIMx peripheral via the RCC controller by setting and resetting its respective
+LPTIMxRST bit in RCC_APByRSTRz register.
+*/
 void mtqn_disable_LPTIM1(){
-    LPTIM1->CR &= ~LPTIM_CR_ENABLE;
+    RCC->APB1RSTR1 |= RCC_APB1RSTR1_LPTIM1RST;
+    RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_LPTIM1RST;
+}
+
+void mtqn_enable_LPTIM1(){
+    LPTIM1->CR |= LPTIM_CR_ENABLE;
+}
+
+/*
+From device errata ES0335:
+In order to disable a low power timer (LPTIMx) peripheral, do not clear its ENABLE bit in its respective LPTIM_CR
+register. Instead, reset the whole LPTIMx peripheral via the RCC controller by setting and resetting its respective
+LPTIMxRST bit in RCC_APByRSTRz register.
+*/
+void mtqn_disable_LPTIM2(){
+    LPTIM2->CR &= ~LPTIM_CR_ENABLE;
 }
 
 void mtqn_disable_I2C3(){
@@ -515,24 +532,31 @@ void mtqn_disable_VREFBUF(){
     VREFBUF->CSR &= ~VREFBUF_CSR_ENVR;
 }
 
-void mtqn_enter_stop_mode2() {
-    mtqn_disable_ADCx();
-    mtqn_disable_LPTIM1();
-    mtqn_disable_I2C3();
-    mtqn_disable_DMAx();
-    mtqn_disable_LPUART();
-    mtqn_disable_USARTx();
-    mtqn_disable_comparators();
-    mtqn_disable_PVMx();
-    mtqn_disable_PVD();
-    mtqn_disable_OPAMPx();
-    mtqn_disable_DACx();
-    mtqn_disable_temp_sensor();
-    mtqn_disable_VREFBUF();
+static RTC_HandleTypeDef RtcHandle;
 
-    mtqn_save_gpio_state();
-    mtqn_float_pins();
-    HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+/* Usage example:
+    set_time(0);
+    // Enable wakeup timer.
+    rtc_set_wake_up_timer_s(seconds);
+*/
+static void rtc_set_wake_up_timer_s(uint32_t delta)
+{
+    uint32_t clock = RTC_WAKEUPCLOCK_CK_SPRE_16BITS;
+
+    // HAL_RTCEx_SetWakeUpTimer_IT will assert that delta is 0xFFFF at max
+    if (delta > 0xFFFF) {
+        delta -= 0x10000;
+        clock = RTC_WAKEUPCLOCK_CK_SPRE_17BITS;
+    }
+
+    RtcHandle.Instance = RTC;
+
+    HAL_StatusTypeDef status = HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, delta, clock);
+
+    if (status != HAL_OK) {
+        debug("Set wake up timer failed: %d\n", status);
+        NVIC_SystemReset();
+     }
 }
 
 void mtqn_enter_stop_mode() {

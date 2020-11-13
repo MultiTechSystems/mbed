@@ -146,6 +146,7 @@ void ONBOARD_SARA4_PPP::onboard_modem_power_up()
 void ONBOARD_SARA4_PPP::onboard_modem_power_down()
 {
     // Disable serial input to allow for mbed deep sleep.
+    // Observed 108uA power savings in stop2.
     _serial.enable_input(0);
 
     gpio_t radioOn;

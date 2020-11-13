@@ -70,6 +70,12 @@ void mtqn_save_gpio_state();
  */
 void mtqn_restore_gpio_state();
 
+/* mtqn_float_pins
+ * Set all GPIO pins as analog in with no pull resistor for minmum power draw.
+ * Float a subset of these pins if your application uses some of them.
+ */
+void mtqn_float_pins();
+
 /* mtqn_enter_stop_mode
  * put the processor into STOP mode
  * RAM and peripheral state is retained
@@ -77,7 +83,7 @@ void mtqn_restore_gpio_state();
  * program execution resumes after this function when the device wakes up
  */
 void mtqn_enter_stop_mode();
-void mtqn_enter_stop_mode2();
+
 /* mtqn_enter_standby_mode
  * put the processor into STANDBY mode
  * RAM and peripheral state is lost
