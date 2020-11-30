@@ -660,6 +660,8 @@ void AT_CellularContext::ppp_disconnected()
     _at.set_is_filehandle_usable(true);
     if (!_at.sync(AT_SYNC_TIMEOUT)) { // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
         tr_error("AT sync failed after PPP Disconnect");
+        _device->soft_power_on();
+        tr_error("soft power on complete");
     }
     _at.unlock();
 }
