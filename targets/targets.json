@@ -3888,6 +3888,7 @@
         "inherits": [
             "MAX32670"
         ],
+        "bootloader_supported": true,
         "detect_code": [
             "0351"
         ]

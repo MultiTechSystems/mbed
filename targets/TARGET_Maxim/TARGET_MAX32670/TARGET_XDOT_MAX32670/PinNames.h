@@ -163,6 +163,7 @@ typedef enum {
     // DK Definitions
     // GPIO
     WAKE        = P0_19,
+    LED1        = P0_30,
     GPIO0       = P0_30,
     GPIO1       = P0_27,
     GPIO2       = P0_26,

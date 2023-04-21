@@ -20,11 +20,7 @@ void SystemCoreClockUpdateXdot(void)
             base_freq = EXTCLK_FREQ;
             break;
         case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_ERFO:
-#if defined(TARGET_XDOT_MAX32670)
             base_freq = XDOT_ERFO_FREQ;
-#else
-            base_freq = ERFO_FREQ;
-#endif
             break;
         case MXC_S_GCR_CLKCTRL_SYSCLK_SEL_INRO:
             base_freq = INRO_FREQ;
