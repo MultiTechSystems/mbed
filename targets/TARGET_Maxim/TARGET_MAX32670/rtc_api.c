@@ -38,11 +38,13 @@
 #include "rtc_api.h"
 #include "rtc.h"
 #include "mxc_sys.h"
+#include "pwrseq_regs.h"
 
 
 //******************************************************************************
 void rtc_init(void)
 {
+    MXC_PWRSEQ->lpcn &= ~(1 << 31);  /* Enable the ERTCO. */
     // Enable clock
     MXC_SYS_RTCClockEnable();
     
