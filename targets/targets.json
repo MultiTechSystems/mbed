@@ -6459,6 +6459,15 @@
             "0424"
         ]
     },
+    "XDOT_MAX32670": {
+        "inherits": [
+            "MAX32670"
+        ],
+        "bootloader_supported": true,
+        "detect_code": [
+            "0351"
+        ]
+    },
     "EFM32": {
         "inherits": [
             "Target"
