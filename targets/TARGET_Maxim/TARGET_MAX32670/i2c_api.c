@@ -96,7 +96,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     mxc_i2c_req_t reqMaster;
 
     reqMaster.i2c = obj->i2c;
-    reqMaster.addr = (address >> 1);
+    reqMaster.addr = (address);
     reqMaster.tx_buf = NULL;
     reqMaster.tx_len = 0;
     reqMaster.rx_buf = (unsigned char *)data;
@@ -119,7 +119,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     mxc_i2c_req_t reqMaster;
 
     reqMaster.i2c = obj->i2c;
-    reqMaster.addr = (address >> 1);
+    reqMaster.addr = (address);
     reqMaster.tx_buf = (unsigned char *)data;
     reqMaster.tx_len = length;
     reqMaster.rx_buf = NULL;
