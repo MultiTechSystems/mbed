@@ -81,7 +81,7 @@ typedef enum {
     STDIO_UART_TX  = CONSOLE_TX,
     STDIO_UART_RX  = CONSOLE_RX,
 
-// ----- Start of external pin definitions -----
+// ----- Start of xDot external pin definitions -----
     WAKE        = P0_19,
     LED1        = P0_30,
     GPIO0       = P0_30,
@@ -89,7 +89,7 @@ typedef enum {
     GPIO2       = P0_26,
     GPIO3       = P0_25,
 
-    // Standard AT command port UART
+    // AT command port UART
     UART_RX     = P0_8,
     UART_TX     = P0_9,
     UART_CTS    = P0_10,
@@ -100,7 +100,7 @@ typedef enum {
     UART0_CTS   = UART_CTS,
     UART0_RTS   = UART_RTS,
 
-    // Standard debug UART
+    // debug UART
     UART1_RX   = P0_28,
     UART1_TX   = P0_29,
 
@@ -123,9 +123,9 @@ typedef enum {
     SPI_MOSI    = SPI0_MOSI,
     SPI_SCK     = SPI0_SCK,
     SPI_NSS     = SPI0_SS,
-// ----- End of external pin definitions -----
+// ----- End of xDot external pin definitions -----
 
-// ----- Start of dedicated internal pins. -----
+// ----- Start of xDot dedicated internal pins. -----
     MEM_PWR_EN  = P0_24,     // Power to EEPROM, Flash & Secure element
     FLASH_CS    = P0_23,
 
@@ -150,9 +150,11 @@ typedef enum {
     LORA_DIO1   = P0_22,
 
     RF_SW_CTRL  = P0_18,    // RF switch, active high
-// ----- End of dedicated internal pins. -----
+// ----- End of xDot dedicated internal pins. -----
 
-// ----- Start of aliases for serial_api.c -----
+// ----- Start of aliases for MAX32670 serial_api.c -----
+//  The xDot does not use these serial UARTs or the serial_api
+//  code. These pins are used on the xDot as detailed above.
     UART0B_RX   = P0_24,
     UART0B_TX   = P0_25,
 
@@ -161,7 +163,7 @@ typedef enum {
 
     UART2B_RX   = P0_14,
     UART2B_TX   = P0_15,
-// ----- end of aliases for serial_api.c -----
+// ----- end of aliases for MAX32670 serial_api.c -----
 
     // Not connected
     NC = NOT_CONNECTED
