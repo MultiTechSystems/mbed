@@ -4026,6 +4026,7 @@
         "inherits": [
             "MAX32670"
         ],
+        "device_name": "MAX32670",
         "bootloader_supported": true,
         "detect_code": [
             "0351"
